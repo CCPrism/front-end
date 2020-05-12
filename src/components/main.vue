@@ -1,81 +1,85 @@
 <template>
     <div id="file_container">
-        <div class="button-container">
-            <!--<el-upload-->
-                        <!--ref="upload" action="http://13.com" :multiple="false"-->
-                       <!--:on-change="fileChange"-->
-                       <!--:file-list="fileList" :auto-upload="false" list-type="text" :before-upload="beforeUpload"-->
-                       <!--:limit="1">-->
-                <!--<el-button icon="el-icon-folder-opened" slot="trigger" size="small"-->
-                           <!--plain round-->
-                           <!--style="width:100px;padding-left:0px;margin-right:0px;font-size: 14px;">File-->
-                <!--</el-button>-->
-            <!--</el-upload>-->
-            <el-dialog title="Code Chips" :visible="dialogVisible" width="1000px" @close="onDialogClose" @opened="onDialogOpened">
-                <el-carousel ref="carousel" trigger="click" height="300px"  :autoplay="false" type="card" @change="onCarouselChange">
+        <el-dialog title="Code Chips" :visible="dialogVisible" width="1000px" @close="onDialogClose"
+                   @opened="onDialogOpened">
+            <el-carousel ref="carousel" trigger="click" height="300px" :autoplay="false" type="card"
+                         @change="onCarouselChange">
                 <el-carousel-item v-for="(item,index) in jsonMode.res" :key="index">
                     <div @click="setCodeChip" style="height:300px">
-                    <span>{{test(index)+':'}}</span>
-                    <CodeBlob :code="formatCode(index)" :blankArray="formatBlankArray(index)"></CodeBlob>
+                        <span>{{test(index)+':'}}</span>
+                        <CodeBlob :code="formatCode(index)" :blankArray="formatBlankArray(index)"></CodeBlob>
                     </div>
                 </el-carousel-item>
-                </el-carousel>
+            </el-carousel>
         </el-dialog>
-            <el-button icon="el-icon-folder-opened" slot="trigger" size="small"
-                plain round
-                style="width:100px;margin-right:0px;font-size: 14px;"
-                @click="chooseChip">File
-                </el-button>
-            <el-button icon="el-icon-upload" size="small"
-                       plain round
-                       v-if="false"
-                       style="width:100px;margin-right: 0px; font-size: 14px;"
-                       @click="submitUpload">Upload
-            </el-button>
-            <el-button icon="el-icon-magic-stick" size="small" :type="interpreted?'primary':''"
-                       :plain="!interpreted" round
-                       style="width:100px;margin-right: 10px; font-size: 14px;"
-                       @click="setInterpreted">Interpret
-            </el-button>
-            <el-button icon="el-icon-refresh-left" size="small"
-                       plain round
-                       style="width:100px;margin-right: 10px;padding-left: 0px; font-size: 14px;"
-                       @click="reset">Reset
-            </el-button>
-
-        </div>
-        <div>
-            <strong style="margin: 5px;font-family: Avenir;color:rgb(84,84,84);font-size: 18px;">Code</strong>
-            <span style="margin-left: 280px;">{{anchorText}}</span>
+        <!--<div class="button-container">-->
+            <!--<el-upload-->
+            <!--ref="upload" action="http://13.com" :multiple="false"-->
+            <!--:on-change="fileChange"-->
+            <!--:file-list="fileList" :auto-upload="false" list-type="text" :before-upload="beforeUpload"-->
+            <!--:limit="1">-->
+            <!--<el-button icon="el-icon-folder-opened" slot="trigger" size="small"-->
+            <!--plain round-->
+            <!--style="width:100px;padding-left:0px;margin-right:0px;font-size: 14px;">File-->
+            <!--</el-button>-->
+            <!--</el-upload>-->
+            <!--<el-button icon="el-icon-folder-opened" slot="trigger" size="small"-->
+            <!--plain round-->
+            <!--style="width:100px;margin-right:0px;font-size: 14px;"-->
+            <!--@click="chooseChip">File-->
+            <!--</el-button>-->
+            <!--<el-button icon="el-icon-upload" size="small"-->
+            <!--plain round-->
+            <!--v-if="false"-->
+            <!--style="width:100px;margin-right: 0px; font-size: 14px;"-->
+            <!--@click="submitUpload">Upload-->
+            <!--</el-button>-->
+            <!--<el-button icon="el-icon-magic-stick" size="small" :type="interpreted?'primary':''"-->
+            <!--:plain="!interpreted" round-->
+            <!--style="width:100px;margin-right: 10px; font-size: 14px;"-->
+            <!--@click="setInterpreted">Interpret-->
+            <!--</el-button>-->
+            <!--<el-button icon="el-icon-refresh-left" size="small"-->
+            <!--plain round-->
+            <!--style="width:100px;margin-right: 10px;padding-left: 0px; font-size: 14px;"-->
+            <!--@click="reset">Reset-->
+            <!--</el-button>-->
+        <!--</div>-->
+        <div class="main_container">
+            <strong style="margin: 5px;font-family: Avenir;color:#66390a;font-size: 24px;">Code</strong>
+            <!--<span style="margin-left: 280px;">{{anchorText}}</span>-->
+            <div>
             <el-input class="input-container"
                       ref="input1"
                       :autosize="autoSize"
                       type="textarea"
                       readonly
                       placeholder="请输入内容"
-                      v-model="input" v-show="!interpreted">
+                      style="box-shadow: 0px 5px 5px rgb(200, 200, 200)"
+                      v-model="input" v-if="!interpreted">
 
             </el-input>
-            <div id="code_container" v-show="interpreted">
+            </div>
+            <div id="code_container" v-if="interpreted">
                 <div style="margin: 10px;">
-                <CodeBlob :code="code" :blankArray="blankArray"></CodeBlob>
+                    <CodeBlob :code="code" :blankArray="blankArray"></CodeBlob>
                 </div>
                 <div id="tz" @mousedown="dragEagle">
                 </div>
             </div>
-            <div class="next-previous">
-                <el-button icon="el-icon-arrow-left" size="small" @click="previous()"
-                           plain round
-                           style="width:90px;font-size: 14px;">Prior
-                    <!--v-if="jsonMode.mode===true"> add-->
-                </el-button>
-                <el-button size="small" @click="next()"
-                           style="width:90px;font-size: 14px;margin-left: 30px;"
-                           plain round
-                >Next
-                    <i class="el-icon-arrow-right el-icon--right"/>
-                </el-button>
-            </div>
+            <!--<div class="next-previous">-->
+                <!--<el-button icon="el-icon-arrow-left" size="small" @click="previous()"-->
+                           <!--plain round-->
+                           <!--style="width:90px;font-size: 14px;">Prior-->
+                    <!--&lt;!&ndash;v-if="jsonMode.mode===true"> add&ndash;&gt;-->
+                <!--</el-button>-->
+                <!--<el-button size="small" @click="next()"-->
+                           <!--style="width:90px;font-size: 14px;margin-left: 30px;"-->
+                           <!--plain round-->
+                <!--&gt;Next-->
+                    <!--<i class="el-icon-arrow-right el-icon&#45;&#45;right"/>-->
+                <!--</el-button>-->
+            <!--</div>-->
         </div>
     </div>
 </template>
@@ -85,7 +89,7 @@
     import CodeBlob from "./code_blob"
     // import Axios from 'axios'
     // import {Loading} from 'element-ui';
-    import {ncodeKeyIndexHandler,genBlankArray,getCodeChip} from "../tools";
+    import {ncodeKeyIndexHandler, genBlankArray, getCodeChip} from "../tools";
     import Formatter from "auto-format"
 
     function findLine(res) {
@@ -195,14 +199,14 @@
     }
 
     function ongetRes(that, res) {
-        window.console.log("res=>",res);
+        window.console.log("res=>", res);
         var javaFormatter = Formatter.createJavaFormatter("    ");
         that.$store.commit('setIndexNow', that.jsonMode.i);
         if (res.ncodeKeyIndex) {
             that.$store.commit('setCode', nsplitcode(res.ncode));
             that.$store.commit('setShowBlank', "");
             var newncode = javaFormatter.format(res.ncode.join('\n'));
-            that.blankArray = genBlankArray(newncode,res.ncode);
+            that.blankArray = genBlankArray(newncode, res.ncode);
             that.input = newncode.join('\n');
         }
         else {
@@ -212,7 +216,7 @@
         }
         that.$store.commit('setComment', [res.comment]);
         that.jsonMode.res[that.jsonMode.i].comment = res.comment;
-        var interpretedComment  = findLine(res);
+        var interpretedComment = findLine(res);
         that.jsonMode.res[that.jsonMode.i].interpretedComment = interpretedComment
         that.$store.commit('setInterpretedComment', interpretedComment)
     }
@@ -225,7 +229,7 @@
         data() {
             return {
                 fileList: [],
-                blankArray:[],
+                blankArray: [],
                 jsonMode: {
                     res: [],
                     mode: false,
@@ -236,8 +240,8 @@
                     'minRows': 15,
                     'maxRows': 15
                 },
-                input:'Click File to choose a code chip',
-                dialogVisible:false,
+                input: 'Click File to choose a code chip',
+                dialogVisible: false,
                 fileChoosed: false,
             }
         },
@@ -264,11 +268,11 @@
             this.init()
         },
         methods: {
-            test(i){
-             return i+1;
+            test(i) {
+                return i + 1;
             },
-            init(){
-                this.jsonMode= getCodeChip()
+            init() {
+                this.jsonMode = getCodeChip()
                 this.$store.commit("iniCommentIndexMap", this.jsonMode.map);
             },
             clear() {
@@ -279,16 +283,16 @@
                 this.jsonMode.i = 0;
                 this.jsonMode.mode = false;
                 this.jsonMode.res = [];
-                this.jsonMode.map =[];
+                this.jsonMode.map = [];
                 this.blankArray = [];
-                this.fileChoosed =false;
+                this.fileChoosed = false;
                 this.input = "Click File to choose a code chip";
                 this.init()
             },
-            formatInput(){
+            formatInput() {
                 var javaFormatter = Formatter.createJavaFormatter("    ");
                 var newncode = javaFormatter.format(this.jsonMode.res[this.jsonMode.i].ncode.join('\n'));
-                this.blankArray = genBlankArray(newncode,this.jsonMode.res[this.jsonMode.i].ncode);
+                this.blankArray = genBlankArray(newncode, this.jsonMode.res[this.jsonMode.i].ncode);
                 this.input = newncode.join('\n');
                 this.$store.commit('setCode', (this.jsonMode.res[this.jsonMode.i].ncode));
                 this.$store.commit('setIndexNow', this.jsonMode.i);
@@ -296,31 +300,31 @@
                 this.$store.commit('setInterpretedComment', this.jsonMode.res[this.jsonMode.i].interpretedComment)
                 this.$store.commit('setComment', this.jsonMode.res[this.jsonMode.i].comment);
             },
-            formatCode(index){
+            formatCode(index) {
                 return this.jsonMode.res[index].ncode
             },
-            formatBlankArray(index){
+            formatBlankArray(index) {
                 var javaFormatter = Formatter.createJavaFormatter("    ");
                 var newncode = javaFormatter.format(this.jsonMode.res[index].ncode.join('\n'));
-                return genBlankArray(newncode,this.jsonMode.res[index].ncode);
+                return genBlankArray(newncode, this.jsonMode.res[index].ncode);
             },
             next() {
-                if (this.fileChoosed ===false)
-                    return ;
+                if (this.fileChoosed === false)
+                    return;
                 if (this.jsonMode.i < this.jsonMode.res.length - 1) {
                     this.jsonMode.i += 1;
                     this.formatInput()
                 }
             },
             previous() {
-                if (this.fileChoosed ===false)
-                    return ;
+                if (this.fileChoosed === false)
+                    return;
                 if (this.jsonMode.i >= 1) {
                     this.jsonMode.i -= 1;
                     this.formatInput()
                 }
             },
-            chooseChip(){
+            chooseChip() {
                 this.dialogVisible = true;
                 this.fileChoosed = true;
             },
@@ -367,42 +371,42 @@
                 // ongetRes(this,this.jsonMode.res[this.jsonMode.i] )
                 this.$store.commit('setInterpreted', !this.$store.state.interpreted)
             },
-            findLengthRelation(){
+            findLengthRelation() {
                 var res = this.jsonMode.res;
-                var resLength=[];
-                var i=0;
-                var j=0,sum=0;
-                for(i=0;i<res.length;i++){
+                var resLength = [];
+                var i = 0;
+                var j = 0, sum = 0;
+                for (i = 0; i < res.length; i++) {
                     sum = 0;
-                    for (j=0;j<res[i].code.length;j++)
-                        sum+=res[i].code[j].length;
-                    resLength.push([res[i].code.length,sum])
+                    for (j = 0; j < res[i].code.length; j++)
+                        sum += res[i].code[j].length;
+                    resLength.push([res[i].code.length, sum])
                 }
-                for(i=0;i<res.length;i++)
+                for (i = 0; i < res.length; i++)
                     resLength.push(res[i].code.length)
-                window.console.log(resLength.slice(0,10));
-                window.console.log(resLength.slice(10,20));
-                this.min=10000;
+                window.console.log(resLength.slice(0, 10));
+                window.console.log(resLength.slice(10, 20));
+                this.min = 10000;
             },
-            compute(part1,part2){
-                var sum =0;
-                for(var i=0;i<part1.length;i++)
-                    sum +=Math.abs(part1[i]-part2[i])
+            compute(part1, part2) {
+                var sum = 0;
+                for (var i = 0; i < part1.length; i++)
+                    sum += Math.abs(part1[i] - part2[i])
                 return sum
             },
-            exchange(part2,i,j){
-              var temp = part2[j];
-              part2[j] = part2[i];
-              part2[i] = temp;
-              return part2;
+            exchange(part2, i, j) {
+                var temp = part2[j];
+                part2[j] = part2[i];
+                part2[i] = temp;
+                return part2;
             },
-            part2print(){
-                for (var i=0;i<this.part2.length;i++){
+            part2print() {
+                for (var i = 0; i < this.part2.length; i++) {
                     window.console.log(this.part2[i])
                 }
             },
-            findmin(part1,part2,i){//i is the bit to change
-                if (i===part2.length-1) {
+            findmin(part1, part2, i) {//i is the bit to change
+                if (i === part2.length - 1) {
                     if (this.compute(part1, part2) < this.min) {
                         this.min = this.compute(part1, part2)
                         this.part2 = part2
@@ -412,14 +416,13 @@
                     }
                     return;
                 }
-                for( var j=i;j<part2.length;j++)
-                {
-                    this.findmin(part1,this.exchange(part2,i,j),i+1)
+                for (var j = i; j < part2.length; j++) {
+                    this.findmin(part1, this.exchange(part2, i, j), i + 1)
                 }
 
             },
             setInterpreted() {
-                if (this.jsonMode.mode===false&& this.interpreted===false)
+                if (this.jsonMode.mode === false && this.interpreted === false)
                     this.submitUpload()
                 else
                     this.$store.commit('setInterpreted', !this.$store.state.interpreted)
@@ -448,24 +451,24 @@
                     }
                     if (height < 325)
                         height = 325;
-                    targetDiv.style.height=height+'px';
+                    targetDiv.style.height = height + 'px';
                 };
                 document.onmouseup = function () {
                     document.onmousemove = null;
                 }
             },
-            onCarouselChange(e){
+            onCarouselChange(e) {
                 this.jsonMode.i = e
                 this.formatInput()
             },
-            onDialogClose(){
-                this.dialogVisible =false
+            onDialogClose() {
+                this.dialogVisible = false
             },
-            onDialogOpened(){
+            onDialogOpened() {
                 this.$refs.carousel.setActiveItem(this.jsonMode.i);
             },
-            setCodeChip(){
-                this.dialogVisible =false
+            setCodeChip() {
+                this.dialogVisible = false
                 this.formatInput()
             }
         }
@@ -481,19 +484,24 @@
         justify-content: space-around;
         align-items: center;
     }
+    .main_container{
+        position:relative;
+        left: 60px;
+
+    }
 
     .input-container {
+        position: relative;
         width: 700px;
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
     }
 
     #file_container {
-        width: 100%;
+        width: 800px;
         position: relative;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: flex-start;
+        /*display: flex;*/
+        /*flex-direction: row;*/
+        /*justify-content: space-around;*/
+        /*align-items: flex-start;*/
     }
 
     #code_container {
@@ -502,7 +510,7 @@
         height: 325px;
         overflow: auto;
         border: 1px solid rgba(0, 0, 0, .15);
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: 0px 5px 5px rgb(200, 200, 200);
         background: white;
     }
 
@@ -522,11 +530,12 @@
         bottom: 0px;
         cursor: se-resize;
         z-index: 200001;
-        width:0;
-        height:0;
-        border-bottom:8px solid gray;
-        border-left:8px solid transparent;
+        width: 0;
+        height: 0;
+        border-bottom: 8px solid gray;
+        border-left: 8px solid transparent;
     }
+
     .el-carousel__item span {
         font-size: 14px;
         text-align: center;

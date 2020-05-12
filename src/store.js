@@ -12,8 +12,8 @@ const store = new vuex.Store({
         interpreted:false,
         clear:false,
         reset:false,
-        chosenList:[],
-        indexNow:0,
+        chosenList:new Array(10),
+        indexNow:-1,
         showBlank:"    ",
         autoSize:{
             'minRows': 10,

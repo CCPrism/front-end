@@ -1,46 +1,85 @@
 <template>
     <div id="app">
-        <span class="title">CCPrism</span>
-        <div class="title_divider">
-            <el-divider></el-divider>
-        </div>
-        <div v-if="false" class="clock_container">
-            {{clockText}}
-        </div>
-        <div class="center_container">
-            <Main ref="codeMain" v-on:clear="clearHandler" v-on:onFileChange="onFileChange"/>
-            <div class="mid">
-                <strong style="margin: 5px;font-family: Avenir;color:rgb(84,84,84);font-size: 18px; ">Automatic
-                    comment</strong>
-                <Con></Con>
-            </div>
-            <div class="bot">
-                <strong style="margin: 5px;font-family: Avenir;color:rgb(84,84,84);font-size: 18px;">My comment</strong>
-                <el-input ref="comment_userInput"
-                          type="textarea"
-                          :autosize="{
-                    minRows:3,
-                    maxRows:3
-                  }"
-                          v-model="editText"
-                          style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)"
-                ></el-input>
-
-                <div class="right-bottom-button">
-                    <el-button icon="el-icon-document-copy" size="small" @click="copyText" plain round
-                               style="width:90px;font-size: 14px">Copy
-                    </el-button>
-                    <el-button icon="el-icon-upload" size="small" :plain="!commentIndexMap[indexNow]"
-                               :type="commentIndexMap[indexNow]?'primary':''"
+        <el-container>
+            <el-aside width="300px">
+                <img src="../public/CCPrism.png" style="width:250px;margin-top: 15px;margin-left: 25px;"/>
+                <div class="button_container">
+                    <el-button icon="el-icon-folder-opened" size="small"
                                round
-                               style="width:90px;font-size: 14px;margin-left: 30px;"
-                               @click="onSubmit"
-                    >Submit
+                               style="width:150px; margin-left:10px;font-size: 20px;color:#66390a;box-shadow: 0px 5px 5px #888888"
+                               onMouseOver="this.style.backgroundColor='white';this.style.borderColor='#66390a'"
+                               onMouseOut="this.style.borderColor='white'"
+                               @click="chooseChip">Code
                     </el-button>
-
+                    <el-button icon="el-icon-s-grid" size="small" :type="interpreted?'primary':''"
+                               round
+                               :style="interpreted?'box-shadow: 0px 5px 5px #888888;width:150px; font-size: 20px;color:white;background-color:#66390a':
+                           'box-shadow: 0px 5px 5px #888888;width:150px; font-size: 20px;color:#66390a;background-color:white'"
+                               onMouseOver="this.style.borderColor='white';"
+                               @click="setInterpreted">Interpret
+                    </el-button>
+                    <el-button icon="el-icon-refresh-left" size="small"
+                               round
+                               style="width:150px; font-size: 20px;color:#66390a;box-shadow: 0px 5px 5px #888888"
+                               onMouseOver="this.style.backgroundColor='white';this.style.borderColor='#66390a'"
+                               onMouseOut="this.style.borderColor='white'"
+                               @click="reset">Reset
+                    </el-button>
                 </div>
-            </div>
-        </div>
+            </el-aside>
+            <el-main>
+                <!--<span class="title">CCPrism</span>-->
+                <!--<div class="title_divider">-->
+                <!--<el-divider></el-divider>-->
+                <!--</div>-->
+                <!--<div v-if="false" class="clock_container">-->
+                <!--{{clockText}}-->
+                <!--</div>-->
+                <!--<div class="center_container">-->
+                <Main ref="codeMain" v-on:clear="clearHandler" v-on:onFileChange="onFileChange"/>
+                <div class="mid">
+                    <strong style="margin: 5px;font-family: Avenir;color:#66390a;font-size: 24px;">Auto-generated
+                        comment</strong>
+                    <Con></Con>
+                </div>
+                <div class="bot">
+                    <strong style="margin: 5px;font-family: Avenir;color:#66390a;font-size: 24px;">My
+                        comment</strong>
+                    <div style="background-color:white;">
+                        <!--<el-input ref="comment_userInput"-->
+                        <!--type="textarea"-->
+                        <!--:autosize="{-->
+                        <!--minRows:3,-->
+                        <!--maxRows:3-->
+                        <!--}"-->
+                        <!--v-model="editText"-->
+                        <!--style="box-shadow: 0px 5px 5px rgb(200, 200, 200);border-color:white;font-size: 18px;"-->
+                        <!--&gt;</el-input>-->
+                        <textarea
+                                class="my_comment"
+                                rows="2"
+                                v-model="editText"
+                        >
+                        </textarea>
+                    </div>
+                    <div class="right-bottom-button">
+                        <!--<el-button icon="el-icon-document-copy" size="small" @click="copyText" plain round-->
+                        <!--style="width:90px;font-size: 14px">Copy-->
+                        <!--</el-button>-->
+                        <el-button icon="el-icon-upload" size="small"
+                                   round
+                                   :style="commentIndexMap[indexNow]?'width:150px; font-size: 20px;color:white;background-color:#66390a;box-shadow: 0px 5px 5px #888888'
+                                   :'width:150px; font-size: 20px;color:#66390a;background-color:white;box-shadow: 0px 5px 5px #888888'"
+                                   onMouseOver="this.style.backgroundColor=this.style.color==='white'?'#66390a':'white';this.style.borderColor='white'"
+                                   onMouseOut="this.style.borderColor='white'"
+                                   @click="onSubmit"
+                        >Submit
+                        </el-button>
+
+                    </div>
+                </div>
+            </el-main>
+        </el-container>
     </div>
 </template>
 
@@ -61,7 +100,8 @@
                 countingTime: false,
                 timer: null,
                 s: 0,
-                e: 0
+                e: 0,
+                localCommentIndexMap: []
             }
         },
         watch: {
@@ -71,17 +111,19 @@
             interpreted: function () {
             },
             indexNow: function (newVal) {
-                var text = this.commentSet[newVal].comment
-                if (text == null)
-                    this.editText = '';
+                var text = null;
+                if (this.commentSet.length > 0)
+                    text = this.commentSet[newVal].comment
+                if (text == null || text === '')
+                    this.editText = this.comment;
                 else
                     this.editText = text;
                 this.s = this.second;
             },
-            editText: function () {
-                if (this.commentTimeSet.length > 0)
-                    this.commentTimeSet[this.indexNow].typeTime.push((new Date()).valueOf())
-            }
+            // editText: function () {
+            //     if (this.commentTimeSet.length > 0)
+            //         this.commentTimeSet[this.indexNow].typeTime.push((new Date()).valueOf())
+            // }
         },
         mounted() {
         },
@@ -109,6 +151,15 @@
             Con
         },
         methods: {
+            chooseChip() {
+                this.$refs.codeMain.chooseChip()
+            },
+            setInterpreted() {
+                this.$refs.codeMain.setInterpreted()
+            },
+            reset() {
+                this.$refs.codeMain.reset()
+            },
             onFileChange() {
                 if (!this.countingTime)
                     this.start()
@@ -140,6 +191,9 @@
                 this.commentSet[this.indexNow].comment = this.editText;
                 this.commentSet[this.indexNow].interpreted = this.interpreted;
                 this.$store.commit('setCommentIndexMap', this.indexNow);
+                this.$forceUpdate()
+                // this.commentIndexMap[this.indexNow] = true;
+                this.$message.success('Comment saved!');
                 // if (this.indexNow === this.commentSet.length - 1) {
                 //     var notFinishList = [];
                 //     for (var i = 0; i < this.commentSet.length; i++)
@@ -148,7 +202,7 @@
                 //         }
                 //     this.dialog(notFinishList);
                 // }
-                this.$refs.codeMain.next();
+                // this.$refs.codeMain.next();
             },
             dialog(notFinishList) {
                 if (notFinishList.length > 0) {
@@ -229,7 +283,7 @@
                     this.timer = null;
                     this.commentSet = [];
                     this.commentTimeSet = [];
-                    this.editText=''
+                    this.editText = ''
                     // this.$store.commit("iniCommentIndexMap", []);
                 })
             }
@@ -246,6 +300,25 @@
         justify-content: center;
         align-items: center;
         background: rgb(250, 250, 250);
+    }
+
+    .el-main {
+        background-color: rgb(248, 248, 249);
+    }
+
+    .el-aside {
+        width: 300px;
+        background: rgb(229, 229, 229);
+    }
+
+    .button_container {
+        margin-top: 20px;
+        display: flex;
+        /*background: #66390a;*/
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        height: 300px;
     }
 
     .title {
@@ -267,7 +340,7 @@
         position: relative;
         width: 700px;
         left: 60px;
-        margin-top: 15px;
+        margin-top: 30px;
     }
 
     .bot {
@@ -282,7 +355,7 @@
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        margin: 10px;
+        margin-top: 25px;
     }
 
     .center_container {
@@ -308,6 +381,19 @@
         font-family: Avenir;
         color: rgb(84, 84, 84);
         font-size: 18px;
+    }
+
+    .my_comment {
+        box-shadow: 0px 5px 5px rgb(200, 200, 200);
+        border-color: white;
+        font-size: 16px;
+        padding-top: 25px;
+        padding-left: 10px;
+        width: 685px;
+        height: 45px;
+        resize: vertical;
+        color: rgb(115,116,119);
+        border:1px solid  rgba(0, 0, 0, .15);
     }
 
 </style>

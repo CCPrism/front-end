@@ -54,9 +54,12 @@
     #frameDiv{
         overflow:auto;
         border:1px solid  rgba(0, 0, 0, .15);
-        height:70px;
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        height:50px;
+        box-shadow: 0px 5px 5px rgb(200, 200, 200);
         background:white;
+        padding-top: 25px;
+        padding-left: 13px;
+        font-size: 16px;
     }
     .commentContainer{
         display:flex;
